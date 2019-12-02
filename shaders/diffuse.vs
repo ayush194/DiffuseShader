@@ -15,18 +15,19 @@ out vec3 vlightpos;
 
 //uniform mat4 model;
 //do not perform any model calculations in the vertex shader
+uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform vec3 glightpos;                 //global lightpos
 
 void main() {
-    gl_Position = projection * view * vec4(gpos, 1.0);
+    gl_Position = projection * view * model * vec4(gpos, 1.0);
     //Normal = mat3(transpose(inverse(view * model))) * aNormal;
     vlightpos = vec3(view * vec4(glightpos, 1.0));
-    //we do not want to apply the translation due to the view matrix
-    //we only need the rotations caused by the view matrix, hence multiply
-    //the normals by mat3(view)
-    vnormal = vec3(mat3(view) * gnormal);
+    //we do not want to apply the translation due to the view and model matrices
+    //we only need the rotations caused by the view and model matrices, hence multiply
+    //the normals by mat3(view * model)
+    vnormal = vec3(mat3(view * model) * gnormal);
     vpos = vec3(view * vec4(gpos, 1.0));
     //texcoords = gtexcoords;
 }

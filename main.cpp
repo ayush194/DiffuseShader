@@ -138,11 +138,17 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, vbo_positions);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-    //calling glVertexAttribPointer while vbo_positions was bound ensures that the data for
-    //0th attribute comes from vbo_positions
+    //calling glVertexAttribPointer while vbo_positions was bound ensures that the data for 0th attribute 
+    //comes from vbo_positions, hence we can send the actual data to the vbo_positions buffer object even later
     glBindBuffer(GL_ARRAY_BUFFER, vbo_normals);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+    //now we will send the actual data to the buffer objects
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_positions);
+    glBufferData(GL_ARRAY_BUFFER, positions.size()*sizeof(glm::vec3), &positions[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_normals);
+    glBufferData(GL_ARRAY_BUFFER, normals.size()*sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
     
     while (!glfwWindowShouldClose(window)) {
         //process input
@@ -157,28 +163,17 @@ int main() {
         
         //create transform matrices
         glm::mat4 model, view, projection;
+        model = glm::mat4(1.0f);
         view = CAMERA.getViewMatrix();
         //view = glm::lookAt(glm::vec3(5.0, 5.0, 5.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 1.0));
         //projection = glm::perspective(45.0f, (float)SCR_WIDTH / SCR_HEIGHT, 0.1f, 10000.0f);
         projection = glm::perspective(glm::radians(CAMERA.zoom), (float)SCR_WIDTH / SCR_HEIGHT, 0.1f, 10000.0f);
         
         diffuse_shader.use();
+        diffuse_shader.setMat4("model", model);
         diffuse_shader.setMat4("view", view);
         diffuse_shader.setMat4("projection", projection);
         diffuse_shader.setVec3("glightpos", glm::vec3(3,4,5));
-        
-        //transform all local coordinates to global coordinates
-        for(glm::vec3& pos : positions) {
-            pos = model * glm::vec4(pos, 1.0);
-        }
-        //transform all local normals to global normals without accounting for translations
-        for(glm::vec3& normal : normals) {
-            normal = glm::mat3(model) * normal;
-        }
-        glBindBuffer(GL_ARRAY_BUFFER, vbo_positions);
-        glBufferData(GL_ARRAY_BUFFER, positions.size()*sizeof(glm::vec3), &positions[0], GL_STATIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo_normals);
-        glBufferData(GL_ARRAY_BUFFER, normals.size()*sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
         
         //glBindVertexArray(vao_cube);
         glDrawArrays(GL_TRIANGLES, 0, positions.size());
