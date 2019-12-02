@@ -1,0 +1,1 @@
+g++ -framework OpenGL -lglfw -lglew -I/usr/local/include -I. diffuse_shader_test.cpp objloader.cpp
