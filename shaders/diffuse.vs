@@ -6,14 +6,13 @@
 #version 330 core
 layout (location = 0) in vec3 gpos;     //global pos
 layout (location = 1) in vec3 gnormal;  //global normal
-//layout (location = 2) in vec2 gtexcoords;
+layout (location = 2) in vec2 guv;  //global normal
+layout (location = 3) in uint gmtl_idx;  //global normal
 
 out vec3 vnormal;                       //view normal
 out vec3 vpos;                          //view pos of fragment
-//out vec2 texcoords;
 out vec3 vlightpos;
 
-//uniform mat4 model;
 //do not perform any model calculations in the vertex shader
 uniform mat4 model;
 uniform mat4 view;
